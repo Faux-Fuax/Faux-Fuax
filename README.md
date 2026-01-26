@@ -38,8 +38,8 @@ I found clarity in the logic of code and the expression of digital art. Every li
 ### Connect
 The doors are now open. Welcome to my work.
 
-* **Art Enterprise:** [Forever Unfinished Artworx](#)
-* **Contact:** [Email Me](mailto:your-email@example.com)
+* **Art Enterprise:** [Forever Unfinished Artworx](HTTPS://faux-fuax.github.io)
+* **Contact:** [Email Me](mailto:fuax.fuax@proton.me)
 
 <br>
 <p align="center">
