@@ -8,7 +8,11 @@ import TWEEN from "@tweenjs/tween.js";
 const sfx = { hover: new Audio('assets/audio/hover.mp3'), open: new Audio('assets/audio/open.mp3'), close: new Audio('assets/audio/close.mp3') };
 let neuralLinkEstablished = false;
 
-// --- NSA HUD LOGIC ---
+// --- 1. DYNAMIC CAMERA SETTINGS ---
+const isMobile = window.innerWidth < window.innerHeight;
+const initialCameraPos = { x: 0, y: 0, z: isMobile ? 18 : 10 }; // Pushes camera back on mobile
+
+// --- 2. NSA HUD LOGIC ---
 function startNsaHUD() {
     const columns = document.querySelectorAll('.matrix-col');
     const geo = document.getElementById('location-data');
@@ -39,11 +43,12 @@ function startNsaHUD() {
 }
 startNsaHUD();
 
-// --- THREE.JS ENGINE ---
+// --- 3. THREE.JS ENGINE ---
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x000000, 0.05);
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-camera.position.z = 10;
+camera.position.set(initialCameraPos.x, initialCameraPos.y, initialCameraPos.z);
+
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -73,12 +78,12 @@ function createTextLabel(text, color, isTier2 = false) {
 }
 
 const cubeData = [
-    { id: 0, name: "Shop", theme: 0xff8800, pos: [-4, 2, 0], links: [{t:"Prints", u:"#"}, {t:"1980HD Pack", u:"#"}] },
-    { id: 1, name: "Music", theme: 0xff00ff, pos: [0, 2, 0], links: [{t:"SoundCloud", u:"#"}] },
-    { id: 2, name: "Dev", theme: 0x00ff00, pos: [4, 2, 0], links: [{t:"Paradigm", u:"https://perculiar-pardigm.vercel.app/"}, {t:"RetroCam", u:"https://retro-camera-rust.vercel.app"}] },
-    { id: 3, name: "NFTs", theme: 0x00eaff, pos: [-4, -2, 0], links: [{t:"CyberPugz", u:"#"}] },
-    { id: 4, name: "About", theme: 0xffffff, pos: [0, -2, 0], links: [] },
-    { id: 5, name: "Log", theme: 0xeaff00, pos: [4, -2, 0], links: [{t:"Blogger", u:"#"}] }
+    { id: 0, name: "Shop", theme: 0xff8800, pos: isMobile ? [-2, 4, 0] : [-4, 2, 0], links: [{t:"Prints", u:"#"}, {t:"1980HD Pack", u:"#"}] },
+    { id: 1, name: "Music", theme: 0xff00ff, pos: isMobile ? [2, 4, 0] : [0, 2, 0], links: [{t:"SoundCloud", u:"#"}] },
+    { id: 2, name: "Dev", theme: 0x00ff00, pos: isMobile ? [-2, 0, 0] : [4, 2, 0], links: [{t:"Paradigm", u:"https://perculiar-pardigm.vercel.app/"}, {t:"RetroCam", u:"https://retro-camera-rust.vercel.app"}] },
+    { id: 3, name: "NFTs", theme: 0x00eaff, pos: isMobile ? [2, 0, 0] : [-4, -2, 0], links: [{t:"CyberPugz", u:"#"}] },
+    { id: 4, name: "About", theme: 0xffffff, pos: isMobile ? [-2, -4, 0] : [0, -2, 0], links: [] },
+    { id: 5, name: "Log", theme: 0xeaff00, pos: isMobile ? [2, -4, 0] : [4, -2, 0], links: [{t:"Blogger", u:"#"}] }
 ];
 
 const cubes = [];
@@ -115,6 +120,12 @@ window.addEventListener('pointermove', e => {
     pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
 });
 
+// Touch support for mobile
+window.addEventListener('touchstart', e => {
+    pointer.x = (e.touches[0].clientX / window.innerWidth) * 2 - 1;
+    pointer.y = -(e.touches[0].clientY / window.innerHeight) * 2 + 1;
+}, {passive: false});
+
 window.addEventListener('click', () => {
     if (!neuralLinkEstablished) return;
     raycaster.setFromCamera(pointer, camera);
@@ -132,7 +143,7 @@ window.addEventListener('click', () => {
         if (obj.userData.name === "About") { showDossier(); return; }
         active = obj;
         sfx.open.play().catch(() => {});
-        new TWEEN.Tween(camera.position).to({ x: active.position.x, y: active.position.y, z: 5 }, 1000).easing(TWEEN.Easing.Cubic.Out).onUpdate(() => camera.lookAt(active.position)).onComplete(() => spawnChildren(active)).start();
+        new TWEEN.Tween(camera.position).to({ x: active.position.x, y: active.position.y, z: 5 }, 800).easing(TWEEN.Easing.Cubic.Out).start();
         document.getElementById('return-btn').style.display = "block";
     }
 });
@@ -164,18 +175,29 @@ function spawnChildren(parent) {
 }
 
 document.getElementById('return-btn').addEventListener('click', (e) => {
-    e.stopPropagation(); sfx.close.play().catch(() => {});
-    childCubes.forEach(c => scene.remove(c)); childCubes.length = 0;
-    new TWEEN.Tween(camera.position).to({ x: 0, y: 0, z: 10 }, 1000).onComplete(() => { active = null; }).start();
+    e.stopPropagation(); 
+    sfx.close.play().catch(() => {});
+    childCubes.forEach(c => scene.remove(c)); 
+    childCubes.length = 0;
+    
+    TWEEN.removeAll(); // Clear active tweens
+    new TWEEN.Tween(camera.position)
+        .to({ x: initialCameraPos.x, y: initialCameraPos.y, z: initialCameraPos.z }, 800)
+        .easing(TWEEN.Easing.Cubic.InOut)
+        .onComplete(() => { active = null; })
+        .start();
+        
     document.getElementById('return-btn').style.display = "none";
 });
 
 function animate(time) {
-    requestAnimationFrame(animate); TWEEN.update(time);
+    requestAnimationFrame(animate); 
+    TWEEN.update(time);
     if (neuralLinkEstablished) {
         cubes.forEach(c => { c.rotation.x += 0.005; c.rotation.y += 0.005; });
         childCubes.forEach(cc => { cc.rotation.x += 0.01; cc.rotation.y += 0.01; });
         if (!active) {
+            camera.lookAt(0,0,0);
             raycaster.setFromCamera(pointer, camera);
             const hits = raycaster.intersectObjects(cubes, true);
             if (hits.length > 0) {
@@ -193,10 +215,17 @@ function animate(time) {
                 hovered.getObjectByName("hoverLabel").material.opacity = 0; hovered = null;
                 document.getElementById('instructions').innerText = `[ CLICK A CUBE TO INTERFACE ]`;
             }
-        } else { camera.lookAt(active.position); }
+        } else { 
+            camera.lookAt(active.position); 
+        }
     }
     composer.render();
 }
 animate();
 
-window.addEventListener("resize", () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); composer.setSize(window.innerWidth, window.innerHeight); });
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
+});
