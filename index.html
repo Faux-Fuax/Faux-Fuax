@@ -3,28 +3,47 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Forever Unfinished - 3D Hub</title>
-        <!-- Optimized for mobile devices -->
-        <link
-            href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap"
-            rel="stylesheet"
-        />
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-        />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-        <link rel="manifest" href="/site.webmanifest" />
+        <title>FUAX - Neural Interface</title>
+        <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
+        <div id="neural-overlay">
+            <div class="matrix-container">
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+            </div>
+
+            <div class="geo-hop" id="location-data">LOCATING...</div>
+
+            <div class="scrolling-text" id="boot-logs">
+                <div class="text-line">INITIALIZING NEURAL INTERFACE...</div>
+                <div class="text-line">BYPASSING CORTICAL FIREWALLS...</div>
+            </div>
+
+            <div id="neural-link-btn">
+                <span class="btn-text">ESTABLISH NEURAL LINK</span>
+            </div>
+        </div>
+
         <div id="hud">
             <div id="title-overlay">
                 <h1>Forever Unfinished</h1>
-                <p style="font-size: 0.8em; color: #eaff00">
-                    // Neural Link Established
-                </p>
+                <p style="color: #eaff00">// Neural Link Established</p>
             </div>
             <div id="instructions">[ CLICK A CUBE TO INTERFACE ]</div>
             <div id="return-btn">
@@ -32,42 +51,18 @@
             </div>
         </div>
 
-        <!-- Neural Link Overlay -->
-        <div id="neural-overlay">
-            <div class="static-overlay"></div>
-            <div class="hud-grid"></div>
-            <div class="scrolling-text">
-                <div class="text-line">INITIALIZING NEURAL INTERFACE...</div>
-                <div class="text-line">SCANNING CORTICAL PATHWAYS...</div>
-                <div class="text-line">CALIBRATING SYNAPTIC RESPONSES...</div>
-                <div class="text-line">ESTABLISHING QUANTUM LINK...</div>
-                <div class="text-line">LOADING CONSCIOUSNESS MATRIX...</div>
+        <div id="dossier-container">
+            <div class="dossier-header">
+                <span>SUBJECT: REMINGTON B. // FUAX_LEAD</span>
+                <div class="declassified-stamp">DECLASSIFIED</div>
             </div>
-            <div class="system-status">
-                <div class="status-item">
-                    <span class="status-label">NEURAL SYNC:</span>
-                    <span class="status-value" id="neural-sync">0%</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">BANDWIDTH:</span>
-                    <span class="status-value" id="bandwidth">0 TB/s</span>
-                </div>
-                <div class="status-item">
-                    <span class="status-label">LATENCY:</span>
-                    <span class="status-value" id="latency">∞ ms</span>
-                </div>
-            </div>
-            <div class="glitch-text">SYSTEM_OFFLINE</div>
-            <div id="neural-link-btn">
-                <span class="btn-text">ESTABLISH NEURAL LINK</span>
-                <div class="btn-border"></div>
+            <div id="dossier-text"></div>
+            <div style="margin-top:20px; text-align:right;">
+                <button id="close-dossier">[ CLOSE_FILE ]</button>
             </div>
         </div>
 
-        <div id="content-modal">
-            <h2 id="modal-title">TITLE</h2>
-            <div id="modal-links"></div>
-        </div>
+        <div id="canvas-container"></div>
 
         <script type="importmap">
             {
@@ -78,586 +73,6 @@
                 }
             }
         </script>
-
-        <script type="module">
-            // Audio system updated
-            import * as THREE from "three";
-            import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-            import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-            import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-            import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
-            import TWEEN from "@tweenjs/tween.js";
-
-            function createAudio(name) {
-                const audio = new Audio();
-                const sourceMP3 = document.createElement('source');
-                sourceMP3.src = `assets/audio/${name}.mp3`;
-                sourceMP3.type = 'audio/mpeg';
-                audio.appendChild(sourceMP3);
-                const sourceOGG = document.createElement('source');
-                sourceOGG.src = `assets/audio/${name}.ogg`;
-                sourceOGG.type = 'audio/ogg';
-                audio.appendChild(sourceOGG);
-                return audio;
-            }
-
-            // --- 1. AUDIO SYSTEM ---
-            const sfxHover = createAudio("hover");
-            const sfxOpen = createAudio("Open");
-            const sfxClose = createAudio("Close");
-            sfxHover.volume = 0.2;
-            sfxOpen.volume = 0.1;
-            sfxClose.volume = 0.3;
-
-            // Initialize audio context on first user interaction (browser requirement)
-            let audioInitialized = false;
-            function initAudio() {
-                if (!audioInitialized) {
-                    sfxHover.play().then(() => {
-                        sfxHover.pause();
-                        sfxHover.currentTime = 0;
-                    }).catch(() => {});
-                    sfxOpen.play().then(() => {
-                        sfxOpen.pause();
-                        sfxOpen.currentTime = 0;
-                    }).catch(() => {});
-                    sfxClose.play().then(() => {
-                        sfxClose.pause();
-                        sfxClose.currentTime = 0;
-                    }).catch(() => {});
-                    audioInitialized = true;
-                }
-            }
-
-            // Neural Link System
-            let neuralLinkEstablished = false;
-            let statusInterval;
-            
-            function updateSystemStatus() {
-                const sync = document.getElementById('neural-sync');
-                const bandwidth = document.getElementById('bandwidth');
-                const latency = document.getElementById('latency');
-                const glitchText = document.querySelector('.glitch-text');
-                
-                if (!neuralLinkEstablished) {
-                    // Random status updates while offline
-                    sync.textContent = Math.floor(Math.random() * 30) + '%';
-                    bandwidth.textContent = (Math.random() * 5).toFixed(1) + ' TB/s';
-                    latency.textContent = Math.floor(Math.random() * 1000 + 500) + ' ms';
-                }
-            }
-            
-            function establishNeuralLink() {
-                const overlay = document.getElementById('neural-overlay');
-                const sync = document.getElementById('neural-sync');
-                const bandwidth = document.getElementById('bandwidth');
-                const latency = document.getElementById('latency');
-                const glitchText = document.querySelector('.glitch-text');
-                const btn = document.getElementById('neural-link-btn');
-                
-                // Disable button during connection
-                btn.style.pointerEvents = 'none';
-                btn.querySelector('.btn-text').textContent = 'CONNECTING...';
-                
-                // Animate status values
-                let progress = 0;
-                const connectionInterval = setInterval(() => {
-                    progress += 5;
-                    sync.textContent = progress + '%';
-                    bandwidth.textContent = (progress * 0.12).toFixed(1) + ' TB/s';
-                    latency.textContent = Math.max(10, 1000 - progress * 10) + ' ms';
-                    
-                    if (progress >= 100) {
-                        clearInterval(connectionInterval);
-                        sync.textContent = '100%';
-                        bandwidth.textContent = '12.0 TB/s';
-                        latency.textContent = '10 ms';
-                        glitchText.textContent = 'SYSTEM_ONLINE';
-                        glitchText.style.color = '#00fff7';
-                        
-                        // Play connection sound
-                        initAudio();
-                        sfxOpen.play();
-                        
-                        // Hide overlay after delay
-                        setTimeout(() => {
-                            overlay.classList.add('hidden');
-                            neuralLinkEstablished = true;
-                            clearInterval(statusInterval);
-                        }, 1500);
-                    }
-                }, 100);
-            }
-            
-            // Start status updates
-            statusInterval = setInterval(updateSystemStatus, 2000);
-            
-            // Wire up neural link button
-            document.getElementById('neural-link-btn').addEventListener('click', establishNeuralLink);
-            document.getElementById('neural-link-btn').addEventListener('touchstart', (event) => {
-                event.preventDefault();
-                establishNeuralLink();
-            });
-
-            // Hover sound cooldown to prevent glitchy playback
-            let lastHoverTime = 0;
-            const HOVER_COOLDOWN = 50; // ms between hover sounds (reduced from 100)
-
-            // --- 2. SCENE SETUP ---
-            const scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x000000, 0.03); // Distance fog
-
-            const camera = new THREE.PerspectiveCamera(
-                75,
-                window.innerWidth / window.innerHeight,
-                0.1,
-                1000,
-            );
-            camera.position.z = 8; // Starting position
-
-            // Detect mobile device
-            function isMobile() {
-                return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            }
-
-            const renderer = new THREE.WebGLRenderer({ 
-                antialias: !isMobile(), // Disable antialiasing on mobile for performance
-                powerPreference: "high-performance"
-            });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Cap pixel ratio for performance
-            renderer.toneMapping = THREE.ReinhardToneMapping;
-            
-            // Mobile performance optimizations
-            if (isMobile()) {
-                renderer.shadowMap.enabled = false;
-                renderer.setPixelRatio(1); // Further reduce pixel ratio on mobile
-            }
-            
-            document.body.appendChild(renderer.domElement);
-
-            // --- 3. POST-PROCESSING (THE GLOW) ---
-            const renderScene = new RenderPass(scene, camera);
-            const bloomPass = new UnrealBloomPass(
-                new THREE.Vector2(window.innerWidth, window.innerHeight),
-                1.5,
-                0.4,
-                0.85,
-            );
-            bloomPass.threshold = 0;
-            bloomPass.strength = isMobile() ? 0.8 : 1.2; // Reduce glow on mobile
-            bloomPass.radius = 0.5;
-
-            const composer = new EffectComposer(renderer);
-            composer.addPass(renderScene);
-            composer.addPass(bloomPass);
-            const outputPass = new OutputPass();
-            composer.addPass(outputPass);
-
-            // --- 4. LIGHTING ---
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
-            scene.add(ambientLight);
-
-            // Neon Blue Light
-            const pLight1 = new THREE.PointLight(0x00fff7, 100, 50);
-            pLight1.position.set(5, 5, 5);
-            scene.add(pLight1);
-
-            // Neon Yellow Light
-            const pLight2 = new THREE.PointLight(0xeaff00, 100, 50);
-            pLight2.position.set(-5, -5, 5);
-            scene.add(pLight2);
-
-            // --- 5. CREATE CUBES ---
-            const cubes = [];
-            // Data structure for our links
-            const cubeData = [
-                {
-                    id: 0,
-                    name: "Shop",
-                    colorTheme: { hover: 0xff8800, zoom: 0xff6600 }, // Orange theme
-                    pos: { x: -3, y: 1.5, z: 0 },
-                    links: [
-                        {
-                            text: "Main Shop",
-                            url: "https://fuax.square.site",
-                        },
-                        {
-                            text: "1980HD Pack",
-                            url: "https://fuax.square.site/product/1980hd-minimalist-pack/EH7ZR4VWQG2XV5RMAUB2MLD5",
-                        },
-                        {
-                            text: "Beautiful Chaos",
-                            url: "https://fuax.square.site/product/beautiful-chaos-framed-canvas/UHNET5PA4OKHZH3GQDPEZQ5H",
-                        },
-                    ],
-                },
-                {
-                    id: 1,
-                    name: "Music",
-                    colorTheme: { hover: 0xff69b4, zoom: 0xff1493 }, // Pink theme
-                    pos: { x: 0, y: 1.5, z: 0 },
-                    links: [
-                        {
-                            text: "SoundCloud",
-                            url: "https://soundcloud.com/faux-fuax",
-                        },
-                        { text: "Lyrics", url: "pages/lyrics.html" },
-                    ],
-                },
-                {
-                    id: 2,
-                    name: "Logs",
-                    colorTheme: { hover: 0x00fff7, zoom: 0x00cccc }, // Teal theme (default)
-                    pos: { x: 3, y: 1.5, z: 0 },
-                    links: [
-                        {
-                            text: "Captain's Log",
-                            url: "https://www.blogger.com/profile/14617392804110616005",
-                        },
-                        {
-                            text: "Have Ya Herd",
-                            url: "https://fauxfuax.blogspot.com/2025/10/have-you-herd-about-mycurd.html",
-                        },
-                    ],
-                },
-                {
-                    id: 3,
-                    name: "NFTs",
-                    colorTheme: { hover: 0xff8800, zoom: 0xff6600 }, // Orange theme
-                    pos: { x: -3, y: -1.5, z: 0 },
-                    links: [
-                        {
-                            text: "CyberPugz Collection",
-                            url: "pages/cbrpgz.html",
-                        },
-                        { text: "Base 2026", url: "#" },
-                    ],
-                },
-                {
-                    id: 4,
-                    name: "About",
-                    colorTheme: { hover: 0xff69b4, zoom: 0xff1493 }, // Pink theme
-                    pos: { x: 0, y: -1.5, z: 0 },
-                    links: [
-                        { text: "Read The Story", url: "pages/about.html" },
-                    ],
-                },
-                {
-                    id: 5,
-                    name: "Dev",
-                    colorTheme: { hover: 0x00fff7, zoom: 0x00cccc }, // Teal theme (default)
-                    pos: { x: 3, y: -1.5, z: 0 },
-                    links: [
-                        {
-                            text: "Peculiar Paradigm",
-                            url: "https://github.com/fuax-art/PerculiarPardigm",
-                        },
-                        {
-                            text: "RetroCamera",
-                            url: "https://retro-camera-rust.vercel.app",
-                        },
-{
-                            text: "Ninja wall run",
-                            url: "neonninja.html",
-                        },
-                    ],
-                },
-            ];
-
-            const boxGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
-
-            // The Glass Material
-            const glassMat = new THREE.MeshPhysicalMaterial({
-                color: 0x222222,
-                metalness: 0.1,
-                roughness: 0.05,
-                transmission: 0.9, // Make it see-through
-                thickness: 1.0,
-                transparent: true,
-                opacity: 0.8,
-            });
-
-            // Wireframe Material (The Neon Edge)
-            const wireMat = new THREE.LineBasicMaterial({ color: 0x00fff7 });
-
-            cubeData.forEach((data) => {
-                // Create the glass cube
-                const cube = new THREE.Mesh(boxGeo, glassMat);
-                cube.position.set(data.pos.x, data.pos.y, data.pos.z);
-                cube.userData = { 
-                    id: data.id, 
-                    name: data.name,
-                    colorTheme: data.colorTheme || { hover: 0x00fff7, zoom: 0x00cccc } // Default teal
-                };
-
-                // Create the neon edges
-                const edges = new THREE.EdgesGeometry(boxGeo);
-                const line = new THREE.LineSegments(edges, wireMat);
-                cube.add(line); // Attach lines to cube
-
-                scene.add(cube);
-                cubes.push(cube);
-            });
-
-            // --- 6. INTERACTION (RAYCASTER) ---
-            const raycaster = new THREE.Raycaster();
-            const pointer = new THREE.Vector2();
-            let hoveredCube = null;
-            let activeCube = null; // Are we zoomed in?
-
-            function onPointerMove(event) {
-                pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-                pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            }
-
-            function onClick(event) {
-                if (!neuralLinkEstablished) return; // Require neural link first
-                if (hoveredCube && !activeCube) {
-                    engageSystem(hoveredCube);
-                }
-            }
-
-            // Touch event support for mobile
-            function onTouchMove(event) {
-                if (event.touches.length > 0) {
-                    pointer.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
-                    pointer.y = -(event.touches[0].clientY / window.innerHeight) * 2 + 1;
-                }
-            }
-
-            function onTouchStart(event) {
-                if (!neuralLinkEstablished) return; // Require neural link first
-                if (event.touches.length > 0 && hoveredCube && !activeCube) {
-                    event.preventDefault();
-                    engageSystem(hoveredCube);
-                }
-            }
-
-            window.addEventListener("pointermove", onPointerMove);
-            window.addEventListener("click", onClick);
-            window.addEventListener("touchmove", onTouchMove, { passive: false });
-            window.addEventListener("touchstart", onTouchStart, { passive: false });
-
-            // Add escape key handler for zoom exit
-            window.addEventListener("keydown", (event) => {
-                if (event.key === "Escape" && activeCube) {
-                    disengageSystem();
-                }
-            });
-
-            // --- 7. ANIMATION LOOPS ---
-
-            // Hover Effect Logic
-            function checkIntersections() {
-                if (activeCube) return; // Don't hover if we are zoomed in
-
-                raycaster.setFromCamera(pointer, camera);
-                const intersects = raycaster.intersectObjects(cubes);
-
-                if (intersects.length > 0) {
-                    let object = intersects[0].object;
-                    
-                    // If we hit a LineSegments (the edges), get its parent (the actual cube)
-                    if (object.type === 'LineSegments' && object.parent && object.parent.type === 'Mesh') {
-                        object = object.parent;
-                    }
-
-                    if (hoveredCube !== object) {
-                        // Reset previous cube if it exists
-                        if (hoveredCube) {
-                            new TWEEN.Tween(hoveredCube.scale)
-                                .to({ x: 1, y: 1, z: 1 }, 300)
-                                .start();
-                            if (hoveredCube.children && hoveredCube.children[0] && hoveredCube.children[0].material && hoveredCube.children[0].material.color) {
-                                hoveredCube.children[0].material.color.setHex(0x00fff7);
-                            }
-                        }
-
-                        // Mouse Enter
-                        const currentTime = Date.now();
-                        if (currentTime - lastHoverTime > HOVER_COOLDOWN) {
-                            sfxHover.currentTime = 0;
-                            // The .catch block is used to prevent errors if the audio fails to play, which can happen for various reasons (e.g., browser restrictions).
-                            sfxHover.play().catch(() => {});
-                            lastHoverTime = currentTime;
-                        }
-                        document.body.style.cursor = "pointer";
-
-                        // Tween Scale Up
-                        new TWEEN.Tween(object.scale)
-                            .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
-                            .start();
-                        // Change Edge Color to cube's hover color
-                        if (object.children && object.children[0] && object.children[0].material && object.children[0].material.color && object.userData && object.userData.colorTheme) {
-                            object.children[0].material.color.setHex(object.userData.colorTheme.hover);
-                        }
-
-                        hoveredCube = object;
-                        document.getElementById("instructions").innerText =
-                            `[ ACCESSING: ${(object.userData.name || 'Unknown').toUpperCase()} ]`;
-                    }
-                } else {
-                    if (hoveredCube) {
-                        // Mouse Leave
-                        new TWEEN.Tween(hoveredCube.scale)
-                            .to({ x: 1, y: 1, z: 1 }, 300)
-                            .start();
-                        if (hoveredCube.children && hoveredCube.children[0] && hoveredCube.children[0].material && hoveredCube.children[0].material.color) {
-                            hoveredCube.children[0].material.color.setHex(0x00fff7);
-                        }
-
-                        hoveredCube = null;
-                        document.body.style.cursor = "default";
-                        document.getElementById("instructions").innerText =
-                            `[ CLICK A CUBE TO INTERFACE ]`;
-                    }
-                }
-            }
-
-            // --- 8. CAMERA MOVEMENTS (The "Game" Feel) ---
-
-            function engageSystem(cube) {
-                activeCube = cube;
-                sfxOpen.play();
-
-                // Change cube to zoom color
-                if (cube.children && cube.children[0] && cube.children[0].material && cube.children[0].material.color && cube.userData && cube.userData.colorTheme) {
-                    cube.children[0].material.color.setHex(cube.userData.colorTheme.zoom);
-                }
-
-                // 1. Hide Title
-                document.getElementById("title-overlay").style.opacity = "0";
-                document.getElementById("instructions").style.display = "none";
-
-                // 2. Move Camera to Cube
-                // Calculate a position slightly in front of the cube
-                const targetPos = {
-                    x: cube.position.x,
-                    y: cube.position.y,
-                    z: cube.position.z + 2.5,
-                };
-
-                new TWEEN.Tween(camera.position)
-                    .to(targetPos, 1000)
-                    .easing(TWEEN.Easing.Cubic.Out)
-                    .onComplete(() => {
-                        // 3. Show Modal content
-                        if (cube.userData && cube.userData.id !== undefined) {
-                            showModal(cube.userData.id);
-                        } else {
-                            console.error("Invalid cube userData - missing id:", cube.userData);
-                            console.error("Cube object:", cube);
-                        }
-                        document.getElementById("return-btn").style.display =
-                            "block";
-                    })
-                    .start();
-
-                // Look at the cube while moving
-                new TWEEN.Tween(camera.rotation)
-                    .to({ x: 0, y: 0, z: 0 }, 1000) // Rough approximation, better to use lookAt in loop
-                    .start();
-            }
-
-            function disengageSystem() {
-                sfxClose.play();
-                document.getElementById("content-modal").style.display = "none";
-                document.getElementById("return-btn").style.display = "none";
-                document.getElementById("title-overlay").style.opacity = "1";
-                document.getElementById("instructions").style.display = "block";
-
-                // Reset active cube color to default teal
-                if (activeCube && activeCube.children && activeCube.children[0] && activeCube.children[0].material && activeCube.children[0].material.color) {
-                    activeCube.children[0].material.color.setHex(0x00fff7);
-                }
-
-                // Reset Camera
-                new TWEEN.Tween(camera.position)
-                    .to({ x: 0, y: 0, z: 8 }, 1200)
-                    .easing(TWEEN.Easing.Cubic.InOut)
-                    .start();
-                
-                // Reset Camera Rotation
-                new TWEEN.Tween(camera.rotation)
-                    .to({ x: 0, y: 0, z: 0 }, 1200)
-                    .easing(TWEEN.Easing.Cubic.InOut)
-                    .onComplete(() => {
-                        activeCube = null;
-                    })
-                    .start();
-            }
-
-            // --- 9. MODAL LOGIC ---
-            function showModal(id) {
-                const data = cubeData.find((d) => d.id === id);
-                if (!data) {
-                    console.error("Cube data not found for id:", id);
-                    return;
-                }
-                
-                const modal = document.getElementById("content-modal");
-                const title = document.getElementById("modal-title");
-                const linkBox = document.getElementById("modal-links");
-
-                title.innerText = data.name || 'Unknown';
-                linkBox.innerHTML = ""; // Clear old links
-
-                data.links.forEach((link) => {
-                    const a = document.createElement("a");
-                    a.href = link.url;
-                    a.innerText = link.text;
-                    a.className = "modal-link";
-                    // If it's an external link, open new tab
-                    if (link.url.startsWith("http")) a.target = "_blank";
-                    linkBox.appendChild(a);
-                });
-
-                modal.style.display = "block";
-            }
-
-            // Wire up the return button
-            const returnBtn = document.getElementById("return-btn");
-            returnBtn.addEventListener("click", disengageSystem);
-            returnBtn.addEventListener("touchstart", (event) => {
-                event.preventDefault();
-                disengageSystem();
-            });
-
-            // --- 10. MAIN LOOP ---
-            function animate(time) {
-                requestAnimationFrame(animate);
-
-                TWEEN.update(time);
-
-                // Idle Rotation (Only if not zoomed in)
-                if (!activeCube) {
-                    cubes.forEach((cube, i) => {
-                        cube.rotation.x += 0.005;
-                        cube.rotation.y += 0.005;
-                    });
-
-                    // Slight Camera drift for 3D feel
-                    camera.position.x +=
-                        (pointer.x * 0.5 - camera.position.x) * 0.05;
-                    camera.position.y +=
-                        (pointer.y * 0.5 - camera.position.y) * 0.05;
-                    camera.lookAt(0, 0, 0);
-                }
-
-                checkIntersections();
-                composer.render();
-            }
-
-            animate();
-
-            // Window Resize Handle
-            window.addEventListener("resize", () => {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                composer.setSize(window.innerWidth, window.innerHeight);
-            });
-        </script>
+        <script type="module" src="main.js"></script>
     </body>
 </html>
