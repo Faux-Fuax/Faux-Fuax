@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Gap: Artwerx Edition</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; }
+        body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; color: #0ff; }
+        #gameCanvas { display: block; }
+
+        /* UI HUD */
+        .hud { position: absolute; padding: 15px; pointer-events: none; z-index: 10; width: 100%; display: flex; justify-content: space-between; }
+        .stat-box { text-shadow: 0 0 10px #00ffff; }
+        
+        #xpBarContainer { position: absolute; bottom: 0; left: 0; width: 100%; height: 6px; background: #111; z-index: 15; }
+        #xpBar { height: 100%; width: 0%; background: linear-gradient(90deg, #0ff, #f0f); transition: width 0.3s; }
+
+        /* Boost Indicators */
+        #boostContainer { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; pointer-events: none; z-index: 15; }
+        .boost-indicator { width: 15px; height: 15px; border: 2px solid #0ff; border-radius: 50%; box-shadow: 0 0 10px #0ff; opacity: 0.2; }
+        .boost-indicator.charged { background: #0ff; opacity: 1; animation: pulse 1s infinite; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        /* Overlays */
+        .overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; z-index: 30; background: rgba(0,0,0,0.95);
+            padding: 25px; border: 2px solid #0ff; box-shadow: 0 0 20px #0ff;
+            min-width: 320px; max-height: 85vh; overflow-y: auto;
+        }
+        
+        button {
+            background: transparent; border: 1px solid #0ff; color: #0ff;
+            padding: 10px 16px; margin: 5px; cursor: pointer; font-family: inherit; font-weight: bold;
+        }
+        button:hover:not(:disabled) { background: #0ff; color: #000; }
+        button:disabled { border-color: #333; color: #333; }
+
+        .hidden { display: none; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .skin-card { border: 1px solid #222; padding: 10px; cursor: pointer; border-radius: 4px; }
+        .skin-card.owned { border-color: #0ff; }
+        .skin-card.active { background: rgba(0, 255, 255, 0.2); border-color: #fff; box-shadow: 0 0 10px #0ff; }
+        .preview-circ { width: 25px; height: 25px; border-radius: 50%; margin: 0 auto 5px; border: 1px solid #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="hud">
+        <div class="stat-box">LVL <span id="lvlTxt">1</span><br><small id="shardDisplay">SHARDS: 0</small></div>
+        <div class="stat-box" style="text-align: right;">SCORE <span id="scoreTxt">0</span></div>
+    </div>
+
+    <div id="boostContainer">
+        <div id="boost1" class="boost-indicator"></div>
+        <div id="boost2" class="boost-indicator"></div>
+    </div>
+
+    <div id="xpBarContainer"><div id="xpBar"></div></div>
+
+    <div id="startScreen" class="overlay">
+        <h1 style="letter-spacing: 5px; color: #fff;">NEON GAP</h1>
+        <p style="font-size: 10px; margin-bottom: 20px; color: #f0f;">FOREVER UNFINISHED ARTWORX</p>
+        <button onclick="ui.startGame()" style="width: 80%;">INITIALIZE RUN</button><br>
+        <button onclick="ui.showMenu('shopScreen')">UPGRADES</button>
+        <button onclick="ui.showMenu('skinScreen')">SKINS</button>
+        <p style="font-size: 10px; margin-top: 15px; opacity: 0.6;">DOUBLE TAP TO BOOST (NEEDS ORBS)</p>
+    </div>
+
+    <div id="shopScreen" class="overlay hidden">
+        <h2>ARMORY</h2>
+        <div style="margin: 20px 0;">
+            <p>MAGNETISM (Lvl <span id="magLvl">0</span>)</p>
+            <button id="btnMag" onclick="game.buyUpgrade('magnet')">Cost: 50</button>
+        </div>
+        <div style="margin: 20px 0;">
+            <p>XP BOOST (Lvl <span id="xpLvl">0</span>)</p>
+            <button id="btnXP" onclick="game.buyUpgrade('xpMult')">Cost: 75</button>
+        </div>
+        <button onclick="ui.showMenu('startScreen')">BACK</button>
+    </div>
+
+    <div id="skinScreen" class="overlay hidden">
+        <h2>SKIN GALLERY</h2>
+        <div class="grid" id="skinGrid"></div>
+        <br>
+        <button onclick="ui.showMenu('startScreen')">BACK</button>
+    </div>
+
+    <div id="gameOver" class="overlay hidden">
+        <h1 style="color: #f00;">SYSTEM CRASH</h1>
+        <p id="finalScore" style="margin: 15px 0;"></p>
+        <button onclick="ui.resetGame()">REBOOT</button>
+        <button onclick="ui.showMenu('startScreen')">EXIT</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+/** * SKIN DATABASE
+ * Update URLs here for your Artwerx pieces
+ */
+const skins = [
+    { id: 0, name: 'Original', color: '#0ff', cost: 0, type: 'color' },
+    { id: 1, name: 'Vapor', color: '#f0f', cost: 100, type: 'color' },
+    { id: 2, name: 'Gold Leaf', color: '#ffd700', cost: 300, type: 'color' },
+    { id: 3, name: 'Unfinished', color: '#fff', cost: 500, type: 'image', url: 'https://via.placeholder.com/64' }
+];
+
+const game = {
+    state: 'START',
+    score: 0,
+    shards: parseInt(localStorage.getItem('ng_shards')) || 0,
+    lvl: parseInt(localStorage.getItem('ng_lvl')) || 1,
+    xp: parseInt(localStorage.getItem('ng_xp')) || 0,
+    activeSkin: parseInt(localStorage.getItem('ng_activeSkin')) || 0,
+    ownedSkins: JSON.parse(localStorage.getItem('ng_ownedSkins')) || [0],
+    upgrades: JSON.parse(localStorage.getItem('ng_upgrades')) || { magnet: 0, xpMult: 0 },
+    
+    // Boost Stats
+    boostCharges: 0,
+    isBoosting: false,
+    boostTimer: 0,
+    lastTap: 0,
+
+    save() {
+        localStorage.setItem('ng_shards', this.shards);
+        localStorage.setItem('ng_lvl', this.lvl);
+        localStorage.setItem('ng_xp', this.xp);
+        localStorage.setItem('ng_activeSkin', this.activeSkin);
+        localStorage.setItem('ng_ownedSkins', JSON.stringify(this.ownedSkins));
+        localStorage.setItem('ng_upgrades', JSON.stringify(this.upgrades));
+    },
+
+    buyUpgrade(type) {
+        const cost = type === 'magnet' ? 50 + (this.upgrades.magnet * 100) : 75 + (this.upgrades.xpMult * 150);
+        if (this.shards >= cost) {
+            this.shards -= cost;
+            this.upgrades[type]++;
+            this.save();
+            ui.update();
+        }
+    },
+
+    buySkin(id) {
+        const skin = skins.find(s => s.id === id);
+        if (this.ownedSkins.includes(id)) {
+            this.activeSkin = id;
+        } else if (this.shards >= skin.cost) {
+            this.shards -= skin.cost;
+            this.ownedSkins.push(id);
+            this.activeSkin = id;
+        }
+        this.save();
+        ui.update();
+    }
+};
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let wallSegments = [], gaps = [], collectables = [], playerImg = new Image();
+
+const ui = {
+    showMenu(id) {
+        document.querySelectorAll('.overlay').forEach(el => el.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+        this.update();
+    },
+    update() {
+        document.getElementById('shardDisplay').innerText = `SHARDS: ${game.shards}`;
+        document.getElementById('lvlTxt').innerText = game.lvl;
+        document.getElementById('scoreTxt').innerText = game.score;
+        document.getElementById('magLvl').innerText = game.upgrades.magnet;
+        document.getElementById('xpLvl').innerText = game.upgrades.xpMult;
+        
+        const nextXP = game.lvl * 500;
+        document.getElementById('xpBar').style.width = (game.xp / nextXP * 100) + "%";
+
+        document.getElementById('btnMag').disabled = game.shards < (50 + (game.upgrades.magnet * 100));
+        document.getElementById('btnXP').disabled = game.shards < (75 + (game.upgrades.xpMult * 150));
+
+        const grid = document.getElementById('skinGrid');
+        grid.innerHTML = '';
+        skins.forEach(s => {
+            const card = document.createElement('div');
+            card.className = `skin-card ${game.ownedSkins.includes(s.id) ? 'owned' : ''} ${game.activeSkin === s.id ? 'active' : ''}`;
+            card.innerHTML = `<div class="preview-circ" style="background:${s.color}"></div><div style="font-size:10px">${s.name}</div><div style="font-size:9px">${game.ownedSkins.includes(s.id) ? 'SELECT' : 'COST: '+s.cost}</div>`;
+            card.onclick = () => game.buySkin(s.id);
+            grid.appendChild(card);
+        });
+
+        const currentSkin = skins.find(s => s.id === game.activeSkin);
+        if(currentSkin.type === 'image') playerImg.src = currentSkin.url;
+
+        this.updateBoostUI();
+    },
+    updateBoostUI() {
+        document.getElementById('boost1').className = `boost-indicator ${game.boostCharges >= 1 ? 'charged' : ''}`;
+        document.getElementById('boost2').className = `boost-indicator ${game.boostCharges >= 2 ? 'charged' : ''}`;
+    },
+    startGame() {
+        ui.showMenu('none');
+        game.state = 'PLAYING';
+        game.boostCharges = 0;
+        game.isBoosting = false;
+        resetPlayer();
+        initWorld();
+    },
+    resetGame() {
+        game.score = 0;
+        this.startGame();
+    }
+};
+
+let player = { x: 0, y: 0, targetX: 0, side: 'left' };
+
+function resetPlayer() {
+    player.y = canvas.height - 150;
+    player.side = 'left';
+    player.targetX = (canvas.width / 2) - 80;
+    player.x = player.targetX;
+}
+
+function initWorld() {
+    wallSegments = []; gaps = []; collectables = [];
+    for(let i=0; i<3; i++) addObstacle(i * -400 - 200);
+}
+
+function addObstacle(yPos) {
+    wallSegments.push({ y: yPos, h: 250 });
+    gaps.push({ y: yPos - 150, h: 150, passed: false });
+    
+    // 20% chance for Boost Orb
+    const isBoost = Math.random() > 0.8;
+    collectables.push({ 
+        x: Math.random() > 0.5 ? (canvas.width/2)-80 : (canvas.width/2)+80, 
+        y: yPos - 300, 
+        type: isBoost ? 'boost' : 'shard',
+        collected: false 
+    });
+}
+
+function handleInput(side) {
+    if(game.state !== 'PLAYING') return;
+    
+    const now = Date.now();
+    if(now - game.lastTap < 250 && game.boostCharges > 0 && !game.isBoosting) {
+        game.isBoosting = true;
+        game.boostTimer = 35;
+        game.boostCharges--;
+        ui.updateBoostUI();
+    }
+    game.lastTap = now;
+
+    player.side = side;
+    player.targetX = side === 'left' ? (canvas.width/2) - 80 : (canvas.width/2) + 80;
+}
+
+window.addEventListener('mousedown', e => handleInput(e.clientX < canvas.width/2 ? 'left' : 'right'));
+window.addEventListener('touchstart', e => { e.preventDefault(); handleInput(e.touches[0].clientX < canvas.width/2 ? 'left' : 'right'); }, {passive: false});
+
+function update() {
+    if(game.state !== 'PLAYING') return;
+
+    let speed = (4 + (game.score * 0.1));
+    if(game.isBoosting) {
+        speed *= 3;
+        game.boostTimer--;
+        if(game.boostTimer <= 0) game.isBoosting = false;
+    }
+
+    player.x += (player.targetX - player.x) * (game.isBoosting ? 0.35 : 0.15);
+
+    wallSegments.forEach(s => s.y += speed);
+    gaps.forEach(g => {
+        g.y += speed;
+        if(!g.passed && g.y > player.y) {
+            g.passed = true;
+            game.score++;
+            game.xp += 15 * (1 + game.upgrades.xpMult * 0.5);
+            if(game.xp >= game.lvl * 500) { game.xp = 0; game.lvl++; }
+            game.save();
+            ui.update();
+        }
+    });
+
+    collectables.forEach(c => {
+        c.y += speed;
+        if(!c.collected) {
+            const dist = Math.hypot(player.x - c.x, player.y - c.y);
+            if(game.upgrades.magnet > 0 && dist < 120 + (game.upgrades.magnet * 40)) {
+                c.x += (player.x - c.x) * 0.15;
+                c.y += (player.y - c.y) * 0.15;
+            }
+            if(dist < 30) { 
+                c.collected = true; 
+                if(c.type === 'boost') {
+                    if(game.boostCharges < 2) game.boostCharges++;
+                    ui.updateBoostUI();
+                } else {
+                    game.shards += 2;
+                }
+                game.save();
+                ui.update();
+            }
+        }
+    });
+
+    if(wallSegments[0].y > canvas.height) {
+        wallSegments.shift(); gaps.shift();
+        addObstacle(wallSegments[wallSegments.length-1].y - 400);
+    }
+
+    const cx = canvas.width/2;
+    wallSegments.forEach(s => {
+        if(!game.isBoosting && player.x > cx - 25 && player.x < cx + 25 && player.y > s.y && player.y < s.y + s.h) die();
+    });
+    gaps.forEach(g => {
+        if(!game.isBoosting && g.y > player.y && g.y < player.y + 10 && (player.x > cx - 40 && player.x < cx + 40)) die();
+    });
+}
+
+function die() {
+    game.state = 'GAMEOVER';
+    ui.showMenu('gameOver');
+    document.getElementById('finalScore').innerText = `FINAL SCORE: ${game.score}`;
+}
+
+function draw() {
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    const cx = canvas.width/2;
+    const currentSkin = skins.find(s => s.id === game.activeSkin);
+
+    // Obstacles
+    ctx.shadowBlur = 15; ctx.shadowColor = '#f0f'; ctx.fillStyle = '#f0f';
+    wallSegments.forEach(s => ctx.fillRect(cx - 10, s.y, 20, s.h));
+
+    // Items
+    collectables.forEach(c => {
+        if(!c.collected) {
+            ctx.shadowBlur = 10;
+            if(c.type === 'boost') {
+                ctx.strokeStyle = '#0ff'; ctx.lineWidth = 3; ctx.shadowColor = '#0ff';
+                ctx.beginPath(); ctx.arc(c.x, c.y, 10, 0, Math.PI*2); ctx.stroke();
+            } else {
+                ctx.fillStyle = '#fff'; ctx.shadowColor = '#fff';
+                ctx.beginPath(); ctx.arc(c.x, c.y, 6, 0, Math.PI*2); ctx.fill();
+            }
+        }
+    });
+
+    // Player & Boost Trail
+    if(game.isBoosting) {
+        ctx.fillStyle = '#0ff'; ctx.globalAlpha = 0.3;
+        ctx.beginPath(); ctx.arc(player.x, player.y + 30, 12, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(player.x, player.y + 60, 8, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha = 1.0;
+    }
+
+    ctx.shadowColor = currentSkin.color;
+    if(currentSkin.type === 'image' && playerImg.complete) {
+        ctx.drawImage(playerImg, player.x - 20, player.y - 20, 40, 40);
+    } else {
+        ctx.fillStyle = currentSkin.color;
+        ctx.beginPath(); ctx.arc(player.x, player.y, 15, 0, Math.PI*2); ctx.fill();
+    }
+
+    requestAnimationFrame(() => { update(); draw(); });
+}
+
+window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+ui.update();
+draw();
+</script>
+</body>
+</html>
