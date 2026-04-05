@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>FUAX | High Tech. Low Life.</title>
+        <style>
+            :root {
+                --bg: #0a0a0a;
+                --text: #e0e0e0;
+                --accent-cyan: #00f3ff;
+                --accent-rust: #d24d1a;
+                --font-main: "Courier New", Courier, monospace;
+            }
+
+            body,
+            html {
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                background-color: var(--bg);
+                color: var(--text);
+                font-family: var(--font-main);
+                overflow: hidden;
+            }
+
+            /* The Main Container */
+            .gate-container {
+                display: flex;
+                height: 100vh;
+                width: 100vw;
+                flex-direction: row;
+            }
+
+            /* Title Overlay */
+            .brand-overlay {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+                pointer-events: none;
+                z-index: 10;
+                width: 100%;
+            }
+
+            .brand-overlay h1 {
+                font-size: 3rem;
+                letter-spacing: 0.5rem;
+                margin-bottom: 0;
+                text-shadow: 2px 2px var(--accent-pink);
+            }
+
+            .brand-overlay p {
+                font-size: 1rem;
+                text-transform: uppercase;
+                opacity: 0.7;
+            }
+
+            /* The Two Paths */
+            .path {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.5s ease;
+                text-decoration: none;
+                position: relative;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .path:hover {
+                flex: 1.5;
+                background-color: rgba(255, 255, 255, 0.02);
+            }
+
+            .path.shop:hover {
+                border-left: 4px solid var(--accent-cyan);
+            }
+            .path.interface:hover {
+                border-right: 4px solid var(--accent-rust);
+            }
+
+            .btn-text {
+                font-size: 1.5rem;
+                font-weight: bold;
+                color: var(--text);
+                pointer-events: auto;
+                padding: 15px 30px;
+                border: 1px solid transparent;
+                transition: 0.3s;
+            }
+
+            .shop .btn-text:hover {
+                color: var(--accent-cyan);
+                border: 1px solid var(--accent-cyan);
+                box-shadow: 0 0 15px var(--accent-cyan);
+            }
+            .interface .btn-text:hover {
+                color: var(--accent-rust);
+                border: 1px solid var(--accent-rust);
+                box-shadow: 0 0 15px var(--accent-rust);
+            }
+
+            /* Mobile Fix */
+            @media (max-width: 768px) {
+                .gate-container {
+                    flex-direction: column;
+                }
+                .brand-overlay h1 {
+                    font-size: 1.8rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="brand-overlay">
+            <h1>FUAX</h1>
+            <p>High Tech. Low Life.</p>
+        </div>
+
+        <div class="gate-container">
+            <a href="https://fuax-shop.fourthwall.com" class="path shop">
+                <div class="btn-text">ACCESS ARTIFACTS</div>
+            </a>
+
+            <a href="/interface.html" class="path interface">
+                <div class="btn-text">ENTER INTERFACE</div>
+            </a>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>FUAX - Neural Interface</title>
+        <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div id="neural-overlay">
+            <div class="matrix-container">
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+                <div class="matrix-col" data-dir="up"></div>
+                <div class="matrix-col" data-dir="down"></div>
+            </div>
+
+            <div class="geo-hop" id="location-data">LOCATING...</div>
+
+            <div class="scrolling-text" id="boot-logs">
+                <div class="text-line">INITIALIZING NEURAL INTERFACE...</div>
+                <div class="text-line">BYPASSING CORTICAL FIREWALLS...</div>
+            </div>
+
+            <div id="neural-link-btn">
+                <span class="btn-text">ESTABLISH NEURAL LINK</span>
+            </div>
+        </div>
+
+        <div id="hud">
+            <div id="title-overlay">
+                <h1>Forever Unfinished</h1>
+                <p style="color: #eaff00">// Neural Link Established</p>
+            </div>
+            <div id="instructions">[ CLICK A CUBE TO INTERFACE ]</div>
+            <div id="return-btn">
+                <i class="fas fa-arrow-left"></i> Disengage
+            </div>
+        </div>
+
+        <div id="dossier-container">
+            <div class="dossier-header">
+                <span>SUBJECT: REMINGTON B. // FUAX_LEAD</span>
+                <div class="declassified-stamp">DECLASSIFIED</div>
+            </div>
+            <div id="dossier-text"></div>
+            <div style="margin-top:20px; text-align:right;">
+                <button id="close-dossier">[ CLOSE_FILE ]</button>
+            </div>
+        </div>
+
+        <div id="canvas-container"></div>
+
+        <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+                    "@tweenjs/tween.js": "https://unpkg.com/@tweenjs/tween.js@23.1.1/dist/tween.esm.js"
+                }
+            }
+        </script>
+        <script type="module" src="main.js"></script>
+    </body>
+</html>
