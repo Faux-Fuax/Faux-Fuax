@@ -129,7 +129,10 @@ const cubeData = [
     links: [
       { t: "Paradigm", u: "https://perculiar-pardigm.vercel.app/" },
       { t: "RetroCam", u: "https://retro-camera-rust.vercel.app" },
-      { t: "EDGERUNNER-2099", u: "edgerunner3399.html" },
+      {
+        t: "EDGERUNNER-3399",
+        u: "https://edgerunner-game.vercel.app/edgerunner3399.html",
+      },
     ],
   },
   {
