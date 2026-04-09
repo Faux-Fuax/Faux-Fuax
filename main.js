@@ -154,7 +154,18 @@ const cubeData = [
     name: "Log",
     theme: 0xeaff00,
     pos: isMobile ? [2, -4, 0] : [4, -2, 0],
-    links: [{ t: "Blogger", u: "#" }],
+    links: [
+      {
+        t: "Decay",
+        u: "https://fauxfuax.blogspot.com/2025/10/aesthetics-of-decay.html",
+      },
+    ],
+    links: [
+      {
+        t: "Monster",
+        u: "https://fauxfuax.blogspot.com/2025/10/monster-and-canvas-soliloquy-in-smoke.html",
+      },
+    ],
   },
 ];
 
