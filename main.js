@@ -131,7 +131,7 @@ const cubeData = [
       { t: "RetroCam", u: "https://retro-camera-rust.vercel.app" },
       {
         t: "EDGERUNNER-3399",
-        u: "https://edgerunner-game.vercel.app/edgerunner3399.html",
+        u: "https://edgerunner-game.vercel.app/",
       },
     ],
   },
@@ -140,7 +140,9 @@ const cubeData = [
     name: "NFTs",
     theme: 0x00eaff,
     pos: isMobile ? [2, 0, 0] : [-4, -2, 0],
-    links: [{ t: "OpenSea", u: "0xa74b50a4c41b2192dcc3cf737cb2c01f6ceb7d5d" }],
+    links: [
+      { t: "OpenSea", u: "https://opensea.io/collection/spacebase-695586422" },
+    ],
   },
   {
     id: 4,
@@ -164,6 +166,12 @@ const cubeData = [
       {
         t: "Monster",
         u: "https://fauxfuax.blogspot.com/2025/10/monster-and-canvas-soliloquy-in-smoke.html",
+      },
+    ],
+    links: [
+      {
+        t: "Have you Herd",
+        u: "https://fauxfuax.blogspot.com/2025/10/have-you-herd-about-mycurd.html",
       },
     ],
   },
